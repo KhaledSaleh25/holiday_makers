@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 
-const customerSchema = new mongoose.Schema({
+const supplierSchema = new mongoose.Schema({
   // Basic Information
-  customerName: {
+  supplierName: {
     type: String,
-    required: [true, 'Customer name is required'],
+    required: [true, 'Supplier name is required'],
     trim: true
   },
-  customerType: {
+  supplierType: {
     type: String,
-    enum: ['Individual', 'Corporate'],
-    default: 'Individual'
+    enum: ['Hotel', 'Transportation', 'Air Transport', 'Visa', 'Sightseeing', 'Assistant', 'Flight', 'Other'],
+    required: true
   },
-  customerCode: {
+  supplierCode: {
     type: String,
     unique: true
   },
@@ -21,10 +21,6 @@ const customerSchema = new mongoose.Schema({
   telephone: {
     type: String,
     required: [true, 'Telephone is required'],
-    trim: true
-  },
-  additionalPhone: {
-    type: String,
     trim: true
   },
   email: {
@@ -40,6 +36,10 @@ const customerSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  cardNumber: {
+    type: String,
+    trim: true
+  },
   
   // Address Information
   country: {
@@ -52,11 +52,7 @@ const customerSchema = new mongoose.Schema({
     required: [true, 'City is required'],
     trim: true
   },
-  regionCity: {
-    type: String,
-    trim: true
-  },
-  buildingNumber: {
+  stateRegion: {
     type: String,
     trim: true
   },
@@ -73,12 +69,21 @@ const customerSchema = new mongoose.Schema({
     trim: true
   },
   
-  // Identification
-  nationalId: {
+  // Business Information
+  branch: {
+    type: String,
+    required: [true, 'Branch is required'],
+    trim: true
+  },
+  mc: {
     type: String,
     trim: true
   },
-  passportNumber: {
+  currency: {
+    type: String,
+    default: 'EGP'
+  },
+  accountingCode: {
     type: String,
     trim: true
   },
@@ -91,61 +96,26 @@ const customerSchema = new mongoose.Schema({
     trim: true
   },
   
-  // Business Information
-  branch: {
-    type: String,
-    required: [true, 'Branch is required'],
-    trim: true
-  },
-  creditTerm: {
-    type: String,
-    trim: true
-  },
-  accountingCode: {
-    type: String,
-    trim: true
-  },
-  galliceCode: {
-    type: String,
-    trim: true
-  },
-  amdOfficeIds: {
-    type: String,
-    trim: true
-  },
-  
-  // Financial
-  costPlus: {
-    type: Number,
-    default: 0
-  },
-  customerCommission: {
-    type: Number,
-    default: 0
-  },
-  
-  // Additional Fields
-  refNote: {
-    type: String,
-    trim: true
-  },
+  // Supplier Details
   ownerName: {
     type: String,
     trim: true
   },
-  staffOwner: {
+  missions: {
     type: String,
     trim: true
   },
-  accountManager: {
+  supplierPaymentType: {
     type: String,
     trim: true
   },
-  title: {
+  taxPowerName: {
     type: String,
     trim: true
   },
-  nationality: {
+  
+  // Additional Fields
+  ref: {
     type: String,
     trim: true
   },
@@ -153,12 +123,23 @@ const customerSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  bju: {
+    type: String,
+    enum: ['Normal', 'Error Test', 'Tax', 'Discount & Collection'],
+    default: 'Normal'
+  },
+  isCustomer: {
+    type: Boolean,
+    default: false
+  },
   
-  // System
-  ledger: {
+  // File upload (store file path or URL)
+  logo: {
     type: String,
     trim: true
   },
+  
+  // System
   isActive: {
     type: Boolean,
     default: true
@@ -172,13 +153,16 @@ const customerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Generate customer code before saving
-customerSchema.pre('save', async function(next) {
-  if (this.isNew && !this.customerCode) {
-    const count = await mongoose.model('Customer').countDocuments();
-    this.customerCode = `CUST${String(count + 1).padStart(6, '0')}`;
+// Generate supplier code before saving
+supplierSchema.pre('save', async function(next) {
+  if (this.isNew && !this.supplierCode) {
+    const count = await mongoose.model('Supplier').countDocuments();
+    this.supplierCode = `SUP${String(count + 1).padStart(6, '0')}`;
   }
   next();
 });
 
-module.exports = mongoose.model('Customer', customerSchema);
+// Index for better search performance
+supplierSchema.index({ supplierName: 'text', supplierCode: 'text', email: 'text' });
+
+module.exports = mongoose.model('Supplier', supplierSchema);

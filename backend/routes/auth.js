@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { login } = require('../controllers/authcontroller');
+const { login, verifyToken } = require('../controllers/authcontroller');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -18,5 +19,7 @@ router.post('/login', [
   }
   next();
 }, login);
+
+router.get('/verify', protect, verifyToken);
 
 module.exports = router;

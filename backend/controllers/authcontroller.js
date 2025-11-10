@@ -3,8 +3,12 @@ const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
 const generateToken = (id) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+  }
+  
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
+    expiresIn: process.env.JWT_EXPIRE || '30d',
   });
 };
 
@@ -49,6 +53,31 @@ exports.login = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error during login'
+    });
+  }
+};
+
+// @desc    Verify token
+// @route   GET /api/auth/verify
+// @access  Private
+exports.verifyToken = async (req, res) => {
+  try {
+    // If we reach here, the token is valid (middleware already verified it)
+    res.json({
+      success: true,
+      message: 'Token is valid',
+      data: {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role
+      }
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during token verification'
     });
   }
 };

@@ -92,3 +92,4 @@ JWT_EXPIRE=30d
 - **Backend:** http://127.0.0.1:5000
 - **Frontend:** http://localhost:3000
 - **API Base:** http://127.0.0.1:5000/api
+
